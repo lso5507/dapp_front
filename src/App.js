@@ -5,17 +5,19 @@ import Loader from './Loading'
 import { useEffect, useState } from 'react';
 
 
-let lotteryAddress = '0x41993455B3e6F06dd484e3244c55629D5488a57a';
+let lotteryAddress = '0xc0Cc692BF7A5D891E0d5217e9AE5FC60ccCb9C76';
 let lotteryABI =[ { "inputs": [], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "index", "type": "uint256" }, { "indexed": false, "internalType": "address", "name": "bettor", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }, { "indexed": false, "internalType": "bytes1", "name": "challenges", "type": "bytes1" }, { "indexed": false, "internalType": "uint256", "name": "answerBlockNumber", "type": "uint256" } ], "name": "BET", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "index", "type": "uint256" }, { "indexed": false, "internalType": "address", "name": "bettor", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }, { "indexed": false, "internalType": "bytes1", "name": "challenges", "type": "bytes1" }, { "indexed": false, "internalType": "bytes1", "name": "answer", "type": "bytes1" }, { "indexed": false, "internalType": "uint256", "name": "answerBlockNumber", "type": "uint256" } ], "name": "DRAW", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "index", "type": "uint256" }, { "indexed": false, "internalType": "address", "name": "bettor", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }, { "indexed": false, "internalType": "bytes1", "name": "challenges", "type": "bytes1" }, { "indexed": false, "internalType": "bytes1", "name": "answer", "type": "bytes1" }, { "indexed": false, "internalType": "uint256", "name": "answerBlockNumber", "type": "uint256" } ], "name": "FAIL", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "enum Lottery.BlockStatus", "name": "result", "type": "uint8" } ], "name": "NOTMINED", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "index", "type": "uint256" }, { "indexed": false, "internalType": "address", "name": "bettor", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }, { "indexed": false, "internalType": "bytes1", "name": "challenges", "type": "bytes1" }, { "indexed": false, "internalType": "uint256", "name": "answerBlockNumber", "type": "uint256" } ], "name": "REFUND", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "internalType": "uint256", "name": "index", "type": "uint256" }, { "indexed": false, "internalType": "address", "name": "bettor", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }, { "indexed": false, "internalType": "bytes1", "name": "challenges", "type": "bytes1" }, { "indexed": false, "internalType": "bytes1", "name": "answer", "type": "bytes1" }, { "indexed": false, "internalType": "uint256", "name": "answerBlockNumber", "type": "uint256" } ], "name": "WIN", "type": "event" }, { "constant": true, "inputs": [], "name": "answerForTest", "outputs": [ { "internalType": "bytes32", "name": "", "type": "bytes32" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "owner", "outputs": [ { "internalType": "address payable", "name": "", "type": "address" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "getPot", "outputs": [ { "internalType": "uint256", "name": "pot", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [ { "internalType": "bytes1", "name": "challenges", "type": "bytes1" } ], "name": "betAndDistrubute", "outputs": [ { "internalType": "bool", "name": "result", "type": "bool" } ], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": false, "inputs": [ { "internalType": "bytes1", "name": "challenges", "type": "bytes1" } ], "name": "bet", "outputs": [ { "internalType": "bool", "name": "result", "type": "bool" } ], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": false, "inputs": [], "name": "distribute", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [ { "internalType": "bytes32", "name": "answer", "type": "bytes32" } ], "name": "setAnswerForTest", "outputs": [ { "internalType": "bool", "name": "result", "type": "bool" } ], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [ { "internalType": "bytes1", "name": "challenges", "type": "bytes1" }, { "internalType": "bytes32", "name": "answer", "type": "bytes32" } ], "name": "isMatch", "outputs": [ { "internalType": "enum Lottery.BettingResult", "name": "", "type": "uint8" } ], "payable": false, "stateMutability": "pure", "type": "function" }, { "constant": true, "inputs": [ { "internalType": "uint256", "name": "index", "type": "uint256" } ], "name": "getBetInfo", "outputs": [ { "internalType": "uint256", "name": "answerBlockNumber", "type": "uint256" }, { "internalType": "address", "name": "bettor", "type": "address" }, { "internalType": "bytes1", "name": "challenges", "type": "bytes1" } ], "payable": false, "stateMutability": "view", "type": "function" } ]
 
 
 
 function App() { 
   const [winRecords,setwinRecords] = useState([]);
+  const [drawRecords,setDrawRecords] = useState([]);
   const [betRecords,setBetRecords] = useState([]);
   const [failRecords,setFailRecords] = useState([]);
   const [pot,setPot] = useState('0');
   const [challenges,setchallenges] = useState(['A','B']);
+  const [test,setTest]=useState('test');
   const [finalRecords,setfinalRecords] = useState([{
     bettor:'0xabcd...',
     index:'0',
@@ -27,16 +29,11 @@ function App() {
 
   const [loading,setLoading] = useState(true)
   useEffect(()=>{
-    const fetchData = async ()=>{
-        initWeb3()
-      //여기서 비동기 함수 실행시 초기화 되기 전 호출이 되는데 setInterval 사용하면 3초후에 호출하기때문에 호출이 됨.(임시방편. 수정필요)
-      // setInterval(getPot,3000)
-        setInterval(()=>pollData(),1000)
-    }
-    fetchData()
 
-    
-  },[]);
+    initWeb3()
+    const time =  setInterval(pollData,2000)
+      return ()=> clearInterval(time)  //componentWillUpdate 사이클에서 setinterval함수가 재호출되므로 전 호출 clear
+  },[finalRecords]);
    const getAccounts= async()=>{
      const account = await window.web3.eth.getAccounts();
      return account
@@ -49,13 +46,22 @@ function App() {
      return Balance;
   }
   const pollData = async()=>{
+    console.log(window.connection)
       //결과 이벤트 로그 임시 출력 해보기
-      await getPot()
-      await getBetEvent(window.connection);
-      await getFailEvent(window.connection)
-      await getWinEvent(window.connection) 
-      await makeFinalRecords()   // TrubleShooting -> 위 Event로그들을 동기처리하고 FinalRecords를 비동기처리 하니 값을 읽어오기전에 이벤트들을 참조.
       
+      getPot()
+      //  getBetEvent(window.connection)
+      //  .then(getFailEvent(window.connection))
+      //  .then(getWinEvent(window.connection) )
+      //  .then(makeFinalRecords())
+      //  .then(()=>{console.log(betRecords)})
+         // TrubleShooting -> 위 Event로그들을 동기처리하고 FinalRecords를 비동기처리 하니 값을 읽어오기전에 이벤트들을 참조.
+    
+      await getBetEvent(window.connection)
+      await getFailEvent(window.connection)
+      await getWinEvent(window.connection)
+      await getDrawEvent()
+      makeFinalRecords();
       
       //===============================
   }
@@ -63,7 +69,7 @@ function App() {
      
      // Recent Dapp
     if (window.ethereum) {
-      console.log('RECENT Module')
+      console.log('RECENT Module ')
       window.web3 = new Web3(window.ethereum);
       //Legacy Code
       //window.ethereum.enable();
@@ -103,7 +109,7 @@ function App() {
     // 맞출 목표
     let challenge  = '0x' + challenges[0].toLowerCase()+challenges[1].toLowerCase()   
     //암호화에서 nonce는 암호화 통신에서 한 번만 사용할 수있는 임의의 숫자입니다. 
-    let nonce =await window.web3.eth.getTransactionCount(window.account[0])  //web3에서 계정은 배열로 리턴됨{인덱스 참조}
+    let nonce =await window.web3.eth.getTransactionCount(window.account[0])  //web3에서 계정은 배열로 리턴됨{인덱스 참조}e
     console.log("nonce!!::::",nonce)
      connection.methods.betAndDistrubute(challenge).send({from:window.account[0], value:5000000000000000,gas:300000,nonce:nonce})
 
@@ -111,38 +117,47 @@ function App() {
   }
 
   const makeFinalRecords = ()=>{
-      let f = 0,w=0;
-      const records = [...betRecords] 
-      console.log('winrecord',winRecords)
+
+      let f = 0,w=0,d=0;
+
+      let records = [...betRecords]   //이게 문제임. setState처리가 안된 betRecords를 저장해서 널값이 뜨는거 ㄷ
+      
       for(let i=0; i<betRecords.length;i++){
         if(winRecords.length>0 && betRecords[i].index === winRecords[w].index){
           records[i].win = 'WIN'
           records[i].answer = records[i].challenge;
           records[i].pot = window.web3.utils.fromWei(winRecords[w].amount,'ether');
           if(winRecords.length -1 >w) w++ // winRecord가 1 초과일때 records배열에 2번째 이상 winRecord값을 넣기 위함
-        } else if(failRecords.length>0 && betRecords[i].index === failRecords[w].index){
+        } else if(failRecords.length>0 && betRecords[i].index === failRecords[f].index){
             records[i].win = 'FAIL'
             records[i].answer = failRecords[f].answer;
             records[i].pot = 0; 
-            if(winRecords.length -1 >w) w++ // winRecord가 1 초과일때 records배열에 2번째 이상 winRecord값을 넣기 위함
+            if(failRecords.length -1 >f) f++ // winRecord가 1 초과일때 records배열에 2번째 이상 winRecord값을 넣기 위함
+          }else if(drawRecords.length>0 && betRecords[i].index === drawRecords[d].index){
+            records[i].win = 'DRAW'
+            records[i].answer = records[i].challenge;
+            records[i].pot = window.web3.utils.fromWei(winRecords[w].amount,'ether');
+            if(winRecords.length -1 >d) d++ // winRecord가 1 초과일때 records배열에 2번째 이상 winRecord값을 넣기 위함
           } else{
             records[i].answer = 'Not Revealed';
           }
       }
+   
        setfinalRecords(records);
   }
   const getPot =  async ()=>{
-      let  pot = await window.connection.methods.getPot().call();
+      let  potData = await window.connection.methods.getPot().call();
      
-      let potString = window.web3.utils.fromWei(pot.toString(),'ether')
+      let potString = window.web3.utils.fromWei(potData.toString(),'ether')
 
       setPot(potString)
+      
   }
   const getBetEvent = async(connection)=>{
-    
+    console.log('getBet')
     let records = []; 
      
-    const events= await connection.getPastEvents('BET',{fromBlock:0, toBlock :'latest'})
+    const events= await window.connection.getPastEvents('BET',{fromBlock:0, toBlock :'latest'})
     for(let i=0;i<events.length;i++){
       const record = {}
       record.index = parseInt(events[i].returnValues.index,10).toString()
@@ -155,15 +170,19 @@ function App() {
       records.unshift(record)
 
     }
-  
+
     setBetRecords(records)
+
+
+
+
   }
 
   const getWinEvent = async(connection)=>{
- 
+    console.log('getWin')
     let records = []; 
      
-    const events= await connection.getPastEvents('WIN',{fromBlock:0, toBlock :'latest'})
+    const events= await window.connection.getPastEvents('WIN',{fromBlock:0, toBlock :'latest'})
     for(let i=0;i<events.length;i++){
       const record = {}
       record.index = parseInt(events[i].returnValues.index,10).toString()
@@ -171,19 +190,37 @@ function App() {
       records.unshift(record)
 
     }
-  //  console.log('winrecords:::',records)
+    
     setwinRecords(records)
+
+  }
+  const getDrawEvent = async()=>{
+    console.log('getDraw')
+    let records = []; 
+     
+    const events= await window.connection.getPastEvents('DRAW',{fromBlock:0, toBlock :'latest'})
+    for(let i=0;i<events.length;i++){
+      const record = {}
+      record.index = parseInt(events[i].returnValues.index,10).toString()
+      record.amount = parseInt(events[i].returnValues.amount,10).toString()
+      records.unshift(record)
+
+    }
+    
+    setDrawRecords(records)
+
   }
   
   const getFailEvent = async(connection)=>{
    
     let records = []; 
+
      
-    const events= await connection.getPastEvents('FAIL',{fromBlock:0, toBlock :'latest'})
+    const events= await window.connection.getPastEvents('FAIL',{fromBlock:0, toBlock :'latest'})
     for(let i=0;i<events.length;i++){
       const record = {}
       record.index = parseInt(events[i].returnValues.index,10).toString()
-      record.answer = parseInt(events[i].returnValues.answer)
+      record.answer = events[i].returnValues.answer
 
       records.unshift(record)
 
@@ -205,7 +242,7 @@ function App() {
 
   //Histroy table
 
-  
+
   if (loading) return <Loader type="spin" color="RGB 값" message={"Loading..."} />;
   const onClickCard = (_char)=>{
     setchallenges([challenges[1],_char])
@@ -265,6 +302,10 @@ function App() {
       </div> 
       <br></br>
       <div className="container">
+        <div>
+          <h1>testArea</h1>
+         {/* <p> {betRecords[0].bettor}</p>  */}
+        </div>
         <table className="table table-dark table-striped">
           <thead>
             <tr>
@@ -299,7 +340,13 @@ function App() {
           </tbody>
         </table>
       </div>
+      <div>
+
+        </div>
+
     </div>
+
+
   );
 }
 
